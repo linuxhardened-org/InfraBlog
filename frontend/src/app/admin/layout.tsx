@@ -23,6 +23,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
+    if (pathname === '/admin/login') return;
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
     if (!token || !userData) {
@@ -30,13 +31,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       return;
     }
     setUser(JSON.parse(userData));
-  }, [router]);
+  }, [router, pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     router.push('/admin/login');
   };
+
+  if (pathname === '/admin/login') {
+    return <>{children}</>;
+  }
 
   if (!user) return null;
 
