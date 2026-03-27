@@ -1,33 +1,33 @@
+-- WARNING: This script will drop existing tables and recreate them.
+-- If you have data you want to keep, back it up first!
+
+-- Drop existing tables (in reverse order of dependencies)
+DROP TABLE IF EXISTS "pages" CASCADE;
+DROP TABLE IF EXISTS "media" CASCADE;
+DROP TABLE IF EXISTS "comments" CASCADE;
+DROP TABLE IF EXISTS "post_tags" CASCADE;
+DROP TABLE IF EXISTS "tags" CASCADE;
+DROP TABLE IF EXISTS "categories" CASCADE;
+DROP TABLE IF EXISTS "posts" CASCADE;
+DROP TABLE IF EXISTS "users" CASCADE;
+
+-- Drop existing types
+DROP TYPE IF EXISTS "Role" CASCADE;
+DROP TYPE IF EXISTS "PostStatus" CASCADE;
+DROP TYPE IF EXISTS "CommentStatus" CASCADE;
+DROP TYPE IF EXISTS "PageStatus" CASCADE;
+
 -- CreateSchema
 CREATE SCHEMA IF NOT EXISTS "public";
 
--- CreateEnum
-DO $$ BEGIN
-    CREATE TYPE "Role" AS ENUM ('ADMIN', 'EDITOR', 'AUTHOR');
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
+-- CreateEnums
+CREATE TYPE "Role" AS ENUM ('ADMIN', 'EDITOR', 'AUTHOR');
+CREATE TYPE "PostStatus" AS ENUM ('DRAFT', 'PUBLISHED', 'SCHEDULED');
+CREATE TYPE "CommentStatus" AS ENUM ('PENDING', 'APPROVED', 'SPAM');
+CREATE TYPE "PageStatus" AS ENUM ('DRAFT', 'PUBLISHED');
 
-DO $$ BEGIN
-    CREATE TYPE "PostStatus" AS ENUM ('DRAFT', 'PUBLISHED', 'SCHEDULED');
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
-
-DO $$ BEGIN
-    CREATE TYPE "CommentStatus" AS ENUM ('PENDING', 'APPROVED', 'SPAM');
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
-
-DO $$ BEGIN
-    CREATE TYPE "PageStatus" AS ENUM ('DRAFT', 'PUBLISHED');
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
-
--- CreateTable
-CREATE TABLE IF NOT EXISTS "users" (
+-- CreateTable: users
+CREATE TABLE "users" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -41,8 +41,31 @@ CREATE TABLE IF NOT EXISTS "users" (
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE IF NOT EXISTS "posts" (
+-- CreateTable: categories
+CREATE TABLE "categories" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "description" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable: tags
+CREATE TABLE "tags" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "tags_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable: posts
+CREATE TABLE "posts" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
@@ -65,39 +88,16 @@ CREATE TABLE IF NOT EXISTS "posts" (
     CONSTRAINT "posts_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE IF NOT EXISTS "categories" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
-    "description" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE IF NOT EXISTS "tags" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "tags_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE IF NOT EXISTS "post_tags" (
+-- CreateTable: post_tags
+CREATE TABLE "post_tags" (
     "postId" TEXT NOT NULL,
     "tagId" TEXT NOT NULL,
 
     CONSTRAINT "post_tags_pkey" PRIMARY KEY ("postId","tagId")
 );
 
--- CreateTable
-CREATE TABLE IF NOT EXISTS "comments" (
+-- CreateTable: comments
+CREATE TABLE "comments" (
     "id" TEXT NOT NULL,
     "content" TEXT NOT NULL,
     "authorName" TEXT NOT NULL,
@@ -111,8 +111,8 @@ CREATE TABLE IF NOT EXISTS "comments" (
     CONSTRAINT "comments_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE IF NOT EXISTS "media" (
+-- CreateTable: media
+CREATE TABLE "media" (
     "id" TEXT NOT NULL,
     "filename" TEXT NOT NULL,
     "originalName" TEXT NOT NULL,
@@ -128,8 +128,8 @@ CREATE TABLE IF NOT EXISTS "media" (
     CONSTRAINT "media_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE IF NOT EXISTS "pages" (
+-- CreateTable: pages
+CREATE TABLE "pages" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
@@ -145,76 +145,27 @@ CREATE TABLE IF NOT EXISTS "pages" (
     CONSTRAINT "pages_pkey" PRIMARY KEY ("id")
 );
 
--- CreateIndex
-CREATE UNIQUE INDEX IF NOT EXISTS "users_email_key" ON "users"("email");
+-- CreateIndexes
+CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+CREATE UNIQUE INDEX "posts_slug_key" ON "posts"("slug");
+CREATE INDEX "posts_slug_idx" ON "posts"("slug");
+CREATE INDEX "posts_status_publishedAt_idx" ON "posts"("status", "publishedAt");
+CREATE INDEX "posts_authorId_idx" ON "posts"("authorId");
+CREATE INDEX "posts_categoryId_idx" ON "posts"("categoryId");
+CREATE UNIQUE INDEX "categories_name_key" ON "categories"("name");
+CREATE UNIQUE INDEX "categories_slug_key" ON "categories"("slug");
+CREATE UNIQUE INDEX "tags_name_key" ON "tags"("name");
+CREATE UNIQUE INDEX "tags_slug_key" ON "tags"("slug");
+CREATE INDEX "comments_postId_idx" ON "comments"("postId");
+CREATE INDEX "comments_status_idx" ON "comments"("status");
+CREATE UNIQUE INDEX "pages_slug_key" ON "pages"("slug");
 
--- CreateIndex
-CREATE UNIQUE INDEX IF NOT EXISTS "posts_slug_key" ON "posts"("slug");
-
--- CreateIndex
-CREATE INDEX IF NOT EXISTS "posts_slug_idx" ON "posts"("slug");
-
--- CreateIndex
-CREATE INDEX IF NOT EXISTS "posts_status_publishedAt_idx" ON "posts"("status", "publishedAt");
-
--- CreateIndex
-CREATE INDEX IF NOT EXISTS "posts_authorId_idx" ON "posts"("authorId");
-
--- CreateIndex
-CREATE INDEX IF NOT EXISTS "posts_categoryId_idx" ON "posts"("categoryId");
-
--- CreateIndex
-CREATE UNIQUE INDEX IF NOT EXISTS "categories_name_key" ON "categories"("name");
-
--- CreateIndex
-CREATE UNIQUE INDEX IF NOT EXISTS "categories_slug_key" ON "categories"("slug");
-
--- CreateIndex
-CREATE UNIQUE INDEX IF NOT EXISTS "tags_name_key" ON "tags"("name");
-
--- CreateIndex
-CREATE UNIQUE INDEX IF NOT EXISTS "tags_slug_key" ON "tags"("slug");
-
--- CreateIndex
-CREATE INDEX IF NOT EXISTS "comments_postId_idx" ON "comments"("postId");
-
--- CreateIndex
-CREATE INDEX IF NOT EXISTS "comments_status_idx" ON "comments"("status");
-
--- CreateIndex
-CREATE UNIQUE INDEX IF NOT EXISTS "pages_slug_key" ON "pages"("slug");
-
--- AddForeignKey (Wrapping in DO block to handle existing FKs)
-DO $$ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'posts_authorId_fkey') THEN
-        ALTER TABLE "posts" ADD CONSTRAINT "posts_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'posts_categoryId_fkey') THEN
-        ALTER TABLE "posts" ADD CONSTRAINT "posts_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'post_tags_postId_fkey') THEN
-        ALTER TABLE "post_tags" ADD CONSTRAINT "post_tags_postId_fkey" FOREIGN KEY ("postId") REFERENCES "posts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'post_tags_tagId_fkey') THEN
-        ALTER TABLE "post_tags" ADD CONSTRAINT "post_tags_tagId_fkey" FOREIGN KEY ("tagId") REFERENCES "tags"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'comments_postId_fkey') THEN
-        ALTER TABLE "comments" ADD CONSTRAINT "comments_postId_fkey" FOREIGN KEY ("postId") REFERENCES "posts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'comments_parentId_fkey') THEN
-        ALTER TABLE "comments" ADD CONSTRAINT "comments_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "comments"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'media_uploadedById_fkey') THEN
-        ALTER TABLE "media" ADD CONSTRAINT "media_uploadedById_fkey" FOREIGN KEY ("uploadedById") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'pages_authorId_fkey') THEN
-        ALTER TABLE "pages" ADD CONSTRAINT "pages_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-    END IF;
-END $$;
+-- AddForeignKeys
+ALTER TABLE "posts" ADD CONSTRAINT "posts_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "posts" ADD CONSTRAINT "posts_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "post_tags" ADD CONSTRAINT "post_tags_postId_fkey" FOREIGN KEY ("postId") REFERENCES "posts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "post_tags" ADD CONSTRAINT "post_tags_tagId_fkey" FOREIGN KEY ("tagId") REFERENCES "tags"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "comments" ADD CONSTRAINT "comments_postId_fkey" FOREIGN KEY ("postId") REFERENCES "posts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "comments" ADD CONSTRAINT "comments_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "comments"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "media" ADD CONSTRAINT "media_uploadedById_fkey" FOREIGN KEY ("uploadedById") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "pages" ADD CONSTRAINT "pages_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
