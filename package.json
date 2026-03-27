@@ -1,6 +1,7 @@
 {
   "name": "infrablog-monorepo",
   "private": true,
+  "type": "module",
   "workspaces": [
     "backend",
     "frontend"

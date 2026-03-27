@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "InfraBlog Backend API - Fastify + TypeScript",
   "main": "dist/server.js",
+  "private": true,
+  "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
