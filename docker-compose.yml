@@ -19,20 +19,6 @@ services:
       timeout: 5s
       retries: 5
 
-  redis:
-    image: redis:7-alpine
-    container_name: infrablog-redis
-    restart: unless-stopped
-    ports:
-      - '6379:6379'
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   backend:
     build:
       context: ./backend
@@ -42,7 +28,6 @@ services:
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://${POSTGRES_USER:-infrablog}:${POSTGRES_PASSWORD:-infrablog_secret}@postgres:5432/${POSTGRES_DB:-infrablog}
-      REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_production}
       PORT: 3001
       UPLOAD_DIR: /app/uploads
@@ -53,8 +38,6 @@ services:
       - uploads_data:/app/uploads
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
 
   frontend:

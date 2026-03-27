@@ -8,10 +8,13 @@ export const config = {
   
   database: {
     url: process.env.DATABASE_URL || 'postgresql://infrablog:infrablog_secret@localhost:5432/infrablog',
+    directUrl: process.env.DIRECT_URL,
   },
 
-  redis: {
-    url: process.env.REDIS_URL || 'redis://localhost:6379',
+  supabase: {
+    url: process.env.SUPABASE_URL,
+    anonKey: process.env.SUPABASE_ANON_KEY,
+    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
   },
 
   jwt: {

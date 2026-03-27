@@ -86,7 +86,6 @@ async function main() {
     prisma.tag.upsert({ where: { slug: 'react' }, update: {}, create: { name: 'React', slug: 'react' } }),
     prisma.tag.upsert({ where: { slug: 'nextjs' }, update: {}, create: { name: 'Next.js', slug: 'nextjs' } }),
     prisma.tag.upsert({ where: { slug: 'postgresql' }, update: {}, create: { name: 'PostgreSQL', slug: 'postgresql' } }),
-    prisma.tag.upsert({ where: { slug: 'redis' }, update: {}, create: { name: 'Redis', slug: 'redis' } }),
     prisma.tag.upsert({ where: { slug: 'nginx' }, update: {}, create: { name: 'Nginx', slug: 'nginx' } }),
     prisma.tag.upsert({ where: { slug: 'performance' }, update: {}, create: { name: 'Performance', slug: 'performance' } }),
     prisma.tag.upsert({ where: { slug: 'security' }, update: {}, create: { name: 'Security', slug: 'security' } }),

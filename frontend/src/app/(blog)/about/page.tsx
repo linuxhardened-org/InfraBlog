@@ -23,7 +23,7 @@ export default async function AboutPage() {
             <h1 className="text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>About LinuxHardened</h1>
             <div className="prose-content">
               <p>LinuxHardened is a modern, production-ready blogging platform focused on Linux security, server hardening, DevOps, and infrastructure best practices.</p>
-              <p>Built with Next.js, Fastify, PostgreSQL, and Redis — battle-tested technologies for production workloads.</p>
+              <p>Built with Next.js, Fastify, and PostgreSQL — battle-tested technologies for production workloads.</p>
             </div>
           </>
         )}
