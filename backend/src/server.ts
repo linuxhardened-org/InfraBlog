@@ -34,7 +34,14 @@ export async function buildApp() {
   // Security
   await fastify.register(helmet, { contentSecurityPolicy: false });
   await fastify.register(cors, {
-    origin: [config.cors.origin, 'http://localhost:3000'],
+    origin: (origin, cb) => {
+      // Allow local development and Vercel deployments
+      if (!origin || /localhost/.test(origin) || /vercel\.app/.test(origin)) {
+        cb(null, true);
+        return;
+      }
+      cb(new Error('Not allowed by CORS'), false);
+    },
     credentials: true,
   });
   await fastify.register(rateLimit, {
