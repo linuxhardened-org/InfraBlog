@@ -24,7 +24,7 @@ export default async function mediaRoutes(fastify: FastifyInstance) {
         const file = await request.file();
         if (!file) return reply.status(400).send({ error: 'No file uploaded' });
 
-        if (!config.upload.allowedMimeTypes.includes(file.mimetype)) {
+        if (!config.upload.allowedMimeTypes.includes(file.mimetype as any)) {
           return reply.status(400).send({ error: 'File type not allowed' });
         }
 

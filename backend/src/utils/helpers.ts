@@ -1,4 +1,5 @@
-import slugify from 'slugify';
+import slugifyPkg from 'slugify';
+const slugify = (slugifyPkg as any).default || slugifyPkg;
 
 export function generateSlug(text: string): string {
   return slugify(text, {
