@@ -1,0 +1,8 @@
+{
+  "name": "infrablog-monorepo",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ]
+}

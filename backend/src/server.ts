@@ -23,7 +23,7 @@ import seoRoutes from './modules/seo/routes.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-async function buildApp() {
+export async function buildApp() {
   const fastify = Fastify({
     logger: {
       level: config.nodeEnv === 'production' ? 'info' : 'debug',
@@ -109,9 +109,10 @@ async function buildApp() {
   return fastify;
 }
 
-async function start() {
+// Start server if run directly
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const app = await buildApp();
   try {
-    const app = await buildApp();
     await app.listen({ port: config.port, host: config.host });
     console.log(`🚀 InfraBlog API running at http://localhost:${config.port}`);
     console.log(`📚 Swagger docs at http://localhost:${config.port}/api/docs`);
@@ -120,5 +121,3 @@ async function start() {
     process.exit(1);
   }
 }
-
-start();

@@ -54,15 +54,23 @@ npm run dev
 # Blog at http://localhost:3000
 ```
 
-### Option 3: Supabase (cloud PostgreSQL)
+### Option 4: Vercel (Production)
 
-1. Create a Supabase project at [supabase.com](https://supabase.com)
-2. Copy your connection strings to `.env`:
-```env
-DATABASE_URL=postgresql://postgres.[REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true
-DIRECT_URL=postgresql://postgres.[REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres
-```
-3. Run migrations: `cd backend && npx prisma migrate dev`
+This project is configured for Vercel deployment as a monorepo.
+
+1.  **Frontend**:
+    *   **Root Directory**: `frontend`
+    *   **Environment Variables**:
+        *   `NEXT_PUBLIC_API_URL`: Your backend API URL (e.g., `https://api.linuxhardened.com/api` or `https://backend-project.vercel.app/api`).
+2.  **Backend**:
+    *   **Root Directory**: `backend`
+    *   **Environment Variables**:
+        *   `DATABASE_URL`: Pooled connection string from Supabase.
+        *   `DIRECT_URL`: Direct connection string from Supabase.
+        *   `JWT_SECRET`: A secure random string.
+        *   `FRONTEND_URL`: Your frontend URL.
+
+The backend is deployed as a single serverless function via `backend/api/index.ts`.
 
 ## 🔑 Default Credentials
 
