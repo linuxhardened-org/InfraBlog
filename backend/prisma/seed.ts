@@ -7,15 +7,17 @@ async function main() {
   console.log('🌱 Seeding database...');
 
   // Create users
-  const adminPassword = await argon2.hash('admin123456');
+  const adminPassword = await argon2.hash('Rishi@2002');
   const editorPassword = await argon2.hash('editor123456');
   const authorPassword = await argon2.hash('author123456');
 
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@infrablog.com' },
-    update: {},
+    where: { email: 'rishiananya123@gmail.com' },
+    update: {
+      password: adminPassword,
+    },
     create: {
-      email: 'admin@infrablog.com',
+      email: 'rishiananya123@gmail.com',
       name: 'Admin User',
       password: adminPassword,
       role: Role.ADMIN,
@@ -948,7 +950,7 @@ Have questions or want to contribute? Reach out at hello@infrablog.com.`,
   });
 
   console.log('✅ Seeding complete!');
-  console.log('📧 Admin:  admin@infrablog.com / admin123456');
+  console.log('📧 Admin:  rishiananya123@gmail.com / Rishi@2002');
   console.log('📧 Editor: editor@infrablog.com / editor123456');
   console.log('📧 Author: author@infrablog.com / author123456');
 }

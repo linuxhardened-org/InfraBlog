@@ -70,7 +70,7 @@ export default function LoginPage() {
         </form>
 
         <p className="text-center text-xs mt-4" style={{ color: 'var(--text-muted)' }}>
-          Demo: admin@infrablog.com / admin123456
+          Demo: rishiananya123@gmail.com / Rishi@2002
         </p>
       </div>
     </div>
